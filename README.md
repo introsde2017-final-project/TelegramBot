@@ -7,5 +7,3 @@ Documentation about the Telegram bot
 ## How to find the bot
 Open Telegram and search for ```@introsde_LifeStyle_bot```
 
-##Install dependency
-https://github.com/leocus/telegramBotUtilities
