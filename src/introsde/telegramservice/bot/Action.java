@@ -18,6 +18,8 @@ public class Action {
 
 	protected static final String START = "/start";
 	protected static final String HELP = "/help";
+	protected static final String FIRSTNAME = "/firstname";
+	protected static final String LASTNAME = "/lastname";
 
 	protected static final String UPDATE_MEASURE = "Update measure";
 	protected static final String UPDATE_FOOD = "Update food";
@@ -27,13 +29,18 @@ public class Action {
 	private static final String CHOOSE_MEASURE = "Ok, which measure do you want to update?\n<b>Choose an option</b>";
 	private static final String CHOOSE_VALUE_MEASURE = "Ok, which is your new value for ";
 
+		
 	 /**
 	 * Get the help
 	 * @param bot the bot asking the help
 	 * @param chatId the chat id of the user
 	 */
-	 protected static void printHelp(LifeCoachBot bot, Long chatId) {
-		 String text = "<b>Hi! I am your Life Style Coach!</b>\nYou can control me by using the keyboard.";
+	 protected static void printHelp(LifeCoachBot bot, Long chatId, String firstname) {
+		 String text = "<b>Hi " + firstname+ "! I am your Life Style Coach!</b>\n" + 
+				 "You can control me by using the keyboard.\n" + 
+				 "\nYou can also use these commands:\n/help - Discover how to use me\n" + 
+				 "/firstname - set your firstname\n" + 
+				 "/lastname - set your lastname";
 		 sendKeyboard(bot, chatId, text);
 	 }
 	
@@ -70,6 +77,17 @@ public class Action {
 		message.setParseMode("html");
 
 		try { // Send the message
+			bot.sendMessage(message);
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	protected static void askName (LifeCoachBot bot, Long chatId, String command) {
+		SendMessage message = new SendMessage();
+		message.setChatId(chatId);
+		message.setText("Type " + command + " followed by your " + command.substring(1));
+		try {
 			bot.sendMessage(message);
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
@@ -126,34 +144,53 @@ public class Action {
 	 * @throws IOException
 	 */
 	 protected static void checkMessageNoKeyboard (LifeCoachBot bot, Update update) {
-	 String firstPart = null;
-	 String text = update.getMessage().getText();
-	 Long chatId = update.getMessage().getChat().getId();
-	
-	 //if the message is a reply
-	 if (update.getMessage().getReplyToMessage() != null) {
-		 String reply = update.getMessage().getReplyToMessage().getText();
-	
-		 //if it is reply to update measure
-		 if (reply.startsWith(CHOOSE_VALUE_MEASURE)) {
-			 String measure = reply.substring(reply.indexOf(CHOOSE_VALUE_MEASURE) + CHOOSE_VALUE_MEASURE.length(), reply.indexOf("?"));
-	
-			 try { //check if the value inserted is a number
-				 Double num = Double.parseDouble(text);
-				 
-				 //TODO save new value num for measure
-				 
-				 firstPart = "Ok, your new value for " + measure + " is " + text + "\n\n<b>Well done!</b>";
-			 } catch (NumberFormatException e) {
-				 firstPart = "Sorry, not a valid number<b>\n\nTry again!</b>";
+		 String firstPart = null;
+		 String text = update.getMessage().getText();
+		 Long chatId = update.getMessage().getChat().getId();
+		 
+		//if command
+		if(text.startsWith("/") && text.contains(" ")) {
+			String argument = text.substring(text.indexOf(" ") + 1);
+			System.out.println(argument);
+			
+			switch (text.substring(0, text.indexOf(" "))) {
+			
+			case Action.FIRSTNAME:
+				//TODO save into db firstname -> argument
+				 firstPart = "Ok, your new value for " + Action.FIRSTNAME.substring(1) + " is " + argument + "\n\n<b>Well done!</b>";
+				break;
+				
+			case Action.LASTNAME:
+				//TODO save into db lastname -> argument
+				 firstPart = "Ok, your new value for " + Action.LASTNAME.substring(1) + " is " + argument + "\n\n<b>Well done!</b>";
+				break;
+				
+			default:
+				break;
+			}
+		} else if (update.getMessage().getReplyToMessage() != null) { //if the message is a reply
+			 String reply = update.getMessage().getReplyToMessage().getText();
+		
+			 //if it is reply to update measure
+			 if (reply.startsWith(CHOOSE_VALUE_MEASURE)) {
+				 String measure = reply.substring(reply.indexOf(CHOOSE_VALUE_MEASURE) + CHOOSE_VALUE_MEASURE.length(), reply.indexOf("?"));
+		
+				 try { //check if the value inserted is a number
+					 Double num = Double.parseDouble(text);
+					 
+					 //TODO save new value num for measure
+					 
+					 firstPart = "Ok, your new value for " + measure + " is " + text + "\n\n<b>Well done!</b>";
+				 } catch (NumberFormatException e) {
+					 firstPart = "Sorry, not a valid number<b>\n\nTry again!</b>";
+				 }
+			 } else { //unrecognized reply
+				 firstPart = "<b>Select action first!</b>";
 			 }
-		 } else { //unrecognized reply
+		 } else { //unrecognized message
 			 firstPart = "<b>Select action first!</b>";
 		 }
-	 } else { //unrecognized message
-		 firstPart = "<b>Select action first!</b>";
-	 }
-	 sendKeyboard(bot, chatId, firstPart + "\nI am ready to perform another action");
+		 sendKeyboard(bot, chatId, firstPart + "\nI am ready to perform another action");
 	 }
 
 	/**

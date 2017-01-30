@@ -27,11 +27,30 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 		if (update.hasMessage() && update.getMessage().getText() != null) {
 			String text = update.getMessage().getText(); // get the message
 			Long chatId = update.getMessage().getChatId(); // get the user chat id
+			
 
 			switch (text) {
 			case Action.START:
+				String firstname = update.getMessage().getFrom().getFirstName();
+				String lastname = update.getMessage().getFrom().getLastName();
+				Action.printHelp(this, chatId, firstname);
+				
+				boolean found = false;
+				//TODO check if user chatId already in db, if not ask lastname if null
+				if (!found) {
+					if (lastname == null) {
+						Action.askName(this, chatId, Action.LASTNAME);
+					}
+					//TODO save into db
+				}
+				System.out.println(firstname);
+				System.out.println(lastname);
+				
+				break;
+				
 			case Action.HELP:
-				Action.printHelp(this, chatId);
+				firstname = update.getMessage().getFrom().getFirstName();
+				Action.printHelp(this, chatId, firstname);
 				break;
 
 			// keyboard selection: update the measure
@@ -56,7 +75,7 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 
 			// no keyboard selection
 			default:
-				Action.checkMessageNoKeyboard(this, update);
+				Action.checkMessageNoKeyboard(this, update);	
 				break;
 			}
 
