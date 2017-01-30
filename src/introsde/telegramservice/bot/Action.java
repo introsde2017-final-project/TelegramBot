@@ -7,10 +7,7 @@ import java.util.List;
 import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.api.objects.replykeyboard.ForceReplyKeyboard;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -18,17 +15,10 @@ public class Action {
 
 	protected static final String START = "/start";
 	protected static final String HELP = "/help";
-	protected static final String FIRSTNAME = "/firstname";
-	protected static final String LASTNAME = "/lastname";
 
-	protected static final String UPDATE_MEASURE = "Update measure";
+
 	protected static final String UPDATE_FOOD = "Update food";
-	protected static final String GET_EXERCISE = "Get exercise";
 	protected static final String GET_RECIPE = "Get recipe";
-
-	private static final String CHOOSE_MEASURE = "Ok, which measure do you want to update?\n<b>Choose an option</b>";
-	private static final String CHOOSE_VALUE_MEASURE = "Ok, which is your new value for ";
-
 		
 	 /**
 	 * Get the help
@@ -54,19 +44,19 @@ public class Action {
 
 		SendMessage message = new SendMessage();
 		message.setChatId(chatId);
-		message.setText(text);
+		message.setText(text + "\nI am ready to perform another action");
 
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 		// Create the keyboard (list of keyboard rows)
 		List<KeyboardRow> keyboard = new ArrayList<>(); 
 		// Create a keyboard row and add it
 		KeyboardRow row = new KeyboardRow();
-		row.add(UPDATE_MEASURE);
+		row.add(Measure.UPDATE_MEASURE);
 		row.add(UPDATE_FOOD);
 		keyboard.add(row);
 
 		row = new KeyboardRow();
-		row.add(GET_EXERCISE);
+		row.add(Exercise.GET_EXERCISE);
 		row.add(GET_RECIPE);
 		keyboard.add(row);
 
@@ -82,60 +72,7 @@ public class Action {
 			e.printStackTrace();
 		}
 	}
-	
-	protected static void askName (LifeCoachBot bot, Long chatId, String command) {
-		SendMessage message = new SendMessage();
-		message.setChatId(chatId);
-		message.setText("Type " + command + " followed by your " + command.substring(1));
-		try {
-			bot.sendMessage(message);
-		} catch (TelegramApiException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	 /**
-	 * Get next operation after having chosen to update a measure
-	 * @param bot the bot itself
-	 * @param chatId the chat id of the user
-	 */
-	
-	protected static void updateMeasure(LifeCoachBot bot, Long chatId) {
-		
-		//send message asking which measure to update
-		SendMessage message = new SendMessage();
-		message.setChatId(chatId);
-		message.setText(CHOOSE_MEASURE);
-		
-		InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-		List<InlineKeyboardButton> row = new ArrayList<>(); 
-		
-		//TODO Get list of measure from db
-		InlineKeyboardButton button = new InlineKeyboardButton();
-		button.setText("Weight");
-		button.setCallbackData("weight");
-		row.add(button);
-		
-		button = new InlineKeyboardButton();
-		button.setText("Height");
-		button.setCallbackData("height");
-		row.add(button);
-		
-		List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-		keyboard.add(row);
-		
-		// Set the keyboard to the markup
-		keyboardMarkup.setKeyboard(keyboard);
-		// Add it to the message
-		message.setReplyMarkup(keyboardMarkup);
-		message.setParseMode("html");
-		
-		try {
-			bot.sendMessage(message);
-		} catch (TelegramApiException e) {
-			e.printStackTrace();
-		}
-	}
+
 
 	/**
 	 * Check reason of a message not coming from the keyboard
@@ -155,14 +92,12 @@ public class Action {
 			
 			switch (text.substring(0, text.indexOf(" "))) {
 			
-			case Action.FIRSTNAME:
-				//TODO save into db firstname -> argument
-				 firstPart = "Ok, your new value for " + Action.FIRSTNAME.substring(1) + " is " + argument + "\n\n<b>Well done!</b>";
+			case Profile.FIRSTNAME:
+				Profile.setFirstname(bot, chatId, argument);
 				break;
 				
-			case Action.LASTNAME:
-				//TODO save into db lastname -> argument
-				 firstPart = "Ok, your new value for " + Action.LASTNAME.substring(1) + " is " + argument + "\n\n<b>Well done!</b>";
+			case Profile.LASTNAME:
+				Profile.setLastname(bot, chatId, argument);
 				break;
 				
 			default:
@@ -172,25 +107,17 @@ public class Action {
 			 String reply = update.getMessage().getReplyToMessage().getText();
 		
 			 //if it is reply to update measure
-			 if (reply.startsWith(CHOOSE_VALUE_MEASURE)) {
-				 String measure = reply.substring(reply.indexOf(CHOOSE_VALUE_MEASURE) + CHOOSE_VALUE_MEASURE.length(), reply.indexOf("?"));
-		
-				 try { //check if the value inserted is a number
-					 Double num = Double.parseDouble(text);
-					 
-					 //TODO save new value num for measure
-					 
-					 firstPart = "Ok, your new value for " + measure + " is " + text + "\n\n<b>Well done!</b>";
-				 } catch (NumberFormatException e) {
-					 firstPart = "Sorry, not a valid number<b>\n\nTry again!</b>";
-				 }
+			 if (reply.startsWith(Measure.CHOOSE_VALUE_MEASURE)) {
+				 Measure.setUpdatedMeasure(bot, chatId, text, reply);
 			 } else { //unrecognized reply
 				 firstPart = "<b>Select action first!</b>";
+				 sendKeyboard(bot, chatId, firstPart);
 			 }
 		 } else { //unrecognized message
 			 firstPart = "<b>Select action first!</b>";
+			 sendKeyboard(bot, chatId, firstPart);
 		 }
-		 sendKeyboard(bot, chatId, firstPart + "\nI am ready to perform another action");
+		 
 	 }
 
 	/**
@@ -212,18 +139,14 @@ public class Action {
 			} catch (TelegramApiException e1) {
 				e1.printStackTrace();
 			}
-
-			ForceReplyKeyboard reply = new ForceReplyKeyboard();
-			SendMessage message = new SendMessage();
-			message.setChatId(chatId);
-			message.setText(CHOOSE_VALUE_MEASURE + data + "?");
-			message.setReplyMarkup(reply);
 			
-			try {
-				bot.sendMessage(message);
-			} catch (TelegramApiException e) {
-				e.printStackTrace();
+			
+			if(data.startsWith(Measure.MEASURE)) {
+				Measure.askUpdatedMeasure(bot, chatId, data);
+			} else if (data.startsWith(Exercise.EXERCISE)) {
+				Exercise.performedExercise(bot, chatId, data);
 			}
+			
 		}
 	}
 }

@@ -4,6 +4,7 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 
+
 public class LifeCoachBot extends TelegramLongPollingBot {
 
 	@Override
@@ -39,13 +40,10 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 				//TODO check if user chatId already in db, if not ask lastname if null
 				if (!found) {
 					if (lastname == null) {
-						Action.askName(this, chatId, Action.LASTNAME);
+						Profile.askName(this, chatId, Profile.LASTNAME);
 					}
 					//TODO save into db
-				}
-				System.out.println(firstname);
-				System.out.println(lastname);
-				
+				}				
 				break;
 				
 			case Action.HELP:
@@ -54,8 +52,8 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 				break;
 
 			// keyboard selection: update the measure
-			case Action.UPDATE_MEASURE:
-				Action.updateMeasure(this, chatId);
+			case Measure.UPDATE_MEASURE:
+				Measure.updateMeasure(this, chatId);
 				break;
 
 			// keyboard selection: update eaten food
@@ -64,8 +62,8 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 				break;
 
 			// keyboard selection: get an exercise
-			case Action.GET_EXERCISE:
-				// TODO
+			case Exercise.GET_EXERCISE:
+				Exercise.getExercise(this, chatId);
 				break;
 
 			// keyboard selection: get a recipe
