@@ -3,6 +3,10 @@ package introsde.telegramservice.bot;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
+import introsde.telegramservice.bot.functionalities.Action;
+import introsde.telegramservice.bot.functionalities.Exercise;
+import introsde.telegramservice.bot.functionalities.Measure;
+
 
 
 public class LifeCoachBot extends TelegramLongPollingBot {
@@ -32,23 +36,11 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 
 			switch (text) {
 			case Action.START:
-				String firstname = update.getMessage().getFrom().getFirstName();
-				String lastname = update.getMessage().getFrom().getLastName();
-				Action.printHelp(this, chatId, firstname);
-				
-				boolean found = false;
-				//TODO check if user chatId already in db, if not ask lastname if null
-				if (!found) {
-					if (lastname == null) {
-						Profile.askName(this, chatId, Profile.LASTNAME);
-					}
-					//TODO save into db
-				}				
+				Action.savePersonIntoDb(this, update);							
 				break;
 				
 			case Action.HELP:
-				firstname = update.getMessage().getFrom().getFirstName();
-				Action.printHelp(this, chatId, firstname);
+				Action.printHelp(this, update);
 				break;
 
 			// keyboard selection: update the measure

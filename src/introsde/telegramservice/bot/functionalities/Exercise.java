@@ -1,4 +1,4 @@
-package introsde.telegramservice.bot;
+package introsde.telegramservice.bot.functionalities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +8,13 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import introsde.telegramservice.bot.LifeCoachBot;
+
 public class Exercise {
 	
 	protected static final String EXERCISE = "exercise";
-	protected static final String GET_EXERCISE = "Get " + EXERCISE;
-	private static final String CHOOSE_EXERCISE = "Ok, which exercise do you prefer?\n\n<b>Choose an option only if you do it!</b>\n";
+	public static final String GET_EXERCISE = "Get " + EXERCISE;
+	protected static final String CHOOSE_EXERCISE = "Ok, which exercise do you prefer?\n\n<b>Choose an option only if you do it!</b>\n";
 
 	
 	/**
@@ -20,7 +22,7 @@ public class Exercise {
 	 * @param bot the bot itself
 	 * @param chatId chatId the chat id of the user
 	 */
-	protected static void getExercise(LifeCoachBot bot, Long chatId) {
+	public static void getExercise(LifeCoachBot bot, Long chatId) {
 		//send message asking which exercise to perform
 		SendMessage message = new SendMessage();
 		message.setChatId(chatId);

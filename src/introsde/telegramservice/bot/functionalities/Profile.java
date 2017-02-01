@@ -1,7 +1,9 @@
-package introsde.telegramservice.bot;
+package introsde.telegramservice.bot.functionalities;
 
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+
+import introsde.telegramservice.bot.LifeCoachBot;
 
 public class Profile {
 	

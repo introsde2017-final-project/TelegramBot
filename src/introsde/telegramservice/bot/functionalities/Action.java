@@ -1,8 +1,10 @@
-package introsde.telegramservice.bot;
+package introsde.telegramservice.bot.functionalities;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.ws.rs.client.Entity;
 
 import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -11,21 +13,49 @@ import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import introsde.telegramservice.bot.LifeCoachBot;
+import introsde.telegramservice.bot.model.Person;
+import introsde.telegramservice.client.BotClient;
+
 public class Action {
 
-	protected static final String START = "/start";
-	protected static final String HELP = "/help";
+	public static final String START = "/start";
+	public static final String HELP = "/help";
 
 
-	protected static final String UPDATE_FOOD = "Update food";
-	protected static final String GET_RECIPE = "Get recipe";
+	public static final String UPDATE_FOOD = "Update food";
+	public static final String GET_RECIPE = "Get recipe";
 		
+	/**
+	 * Save the person into the db if not exists yet
+	 * @param bot the bot itself
+	 * @param update the message update
+	 */
+	public static void savePersonIntoDb(LifeCoachBot bot, Update update) {
+		String firstname = update.getMessage().getFrom().getFirstName();
+		String lastname = update.getMessage().getFrom().getLastName();
+		Long chatId = update.getMessage().getChatId();
+		
+		Action.printHelp(bot, update);
+
+		Person person = new Person(firstname, lastname, chatId);
+		//POST request to Process Centric Service
+		BotClient.getService().path("person").request().post(Entity.xml(person));
+		if (lastname == null) {
+			Profile.askName(bot, chatId, Profile.LASTNAME);
+		}
+	}
+	
+	
 	 /**
 	 * Get the help
 	 * @param bot the bot asking the help
 	 * @param chatId the chat id of the user
 	 */
-	 protected static void printHelp(LifeCoachBot bot, Long chatId, String firstname) {
+	 public static void printHelp(LifeCoachBot bot, Update update) {
+		 String firstname = update.getMessage().getFrom().getFirstName();
+		 Long chatId = update.getMessage().getChatId();
+		 
 		 String text = "<b>Hi " + firstname+ "! I am your Life Style Coach!</b>\n" + 
 				 "You can control me by using the keyboard.\n" + 
 				 "\nYou can also use these commands:\n/help - Discover how to use me\n" + 
@@ -40,7 +70,7 @@ public class Action {
 	 * @param chatId the chat id of the user
 	 * @param text the message to send with the keyboard
 	 */
-	protected static void sendKeyboard(LifeCoachBot bot, Long chatId, String text) {
+	public static void sendKeyboard(LifeCoachBot bot, Long chatId, String text) {
 
 		SendMessage message = new SendMessage();
 		message.setChatId(chatId);
@@ -80,7 +110,7 @@ public class Action {
 	 * @param update the message update
 	 * @throws IOException
 	 */
-	 protected static void checkMessageNoKeyboard (LifeCoachBot bot, Update update) {
+	 public static void checkMessageNoKeyboard (LifeCoachBot bot, Update update) {
 		 String firstPart = null;
 		 String text = update.getMessage().getText();
 		 Long chatId = update.getMessage().getChat().getId();
@@ -125,7 +155,7 @@ public class Action {
 	 * @param bot the bot itself
 	 * @param update the update message
 	 */
-	protected static void checkEmptyText(LifeCoachBot bot, Update update) {
+	public static void checkEmptyText(LifeCoachBot bot, Update update) {
 		// if exists callback value --> e.g inline keyboard
 		if (update.getCallbackQuery() != null) {
 

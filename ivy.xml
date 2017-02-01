@@ -27,5 +27,6 @@
 	
 	<dependencies>
         <dependency org="org.telegram" name="telegrambots" rev="2.4.4"/>
+        <dependency org="org.glassfish.jersey.core" name="jersey-client" rev="2.11"/>
     </dependencies>
 </ivy-module>

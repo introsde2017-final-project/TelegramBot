@@ -1,4 +1,4 @@
-package introsde.telegramservice.bot;
+package introsde.telegramservice.bot.functionalities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,12 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import introsde.telegramservice.bot.LifeCoachBot;
+
 public class Measure {
 
 	protected static final String MEASURE = "measure";
-	protected static final String UPDATE_MEASURE = "Update " + MEASURE;
+	public static final String UPDATE_MEASURE = "Update " + MEASURE;
 	protected static final String CHOOSE_MEASURE = "Ok, which measure do you want to update?\n<b>Choose an option</b>";
 	protected static final String CHOOSE_VALUE_MEASURE = "Ok, which is your new value for ";
 
@@ -22,7 +24,7 @@ public class Measure {
 	 * @param bot the bot itself
 	 * @param chatId the chat id of the user
 	 */
-	protected static void updateMeasure(LifeCoachBot bot, Long chatId) {
+	public static void updateMeasure(LifeCoachBot bot, Long chatId) {
 		
 		//send message asking which measure to update
 		SendMessage message = new SendMessage();
