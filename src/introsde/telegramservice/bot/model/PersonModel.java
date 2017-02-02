@@ -4,17 +4,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement
-public class Person {
+public class PersonModel {
 
 	private String firstname;
 	private String lastname;
 	private Long chatId;
 	
-	public Person() {
+	public PersonModel() {
 		
 	}
 	
-	public Person(String firstname, String lastname, Long chatId) {
+	public PersonModel(String firstname, String lastname, Long chatId) {
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.chatId = chatId;

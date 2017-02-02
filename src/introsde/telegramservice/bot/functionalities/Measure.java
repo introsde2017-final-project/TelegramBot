@@ -3,6 +3,9 @@ package introsde.telegramservice.bot.functionalities;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -10,6 +13,8 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import introsde.telegramservice.bot.LifeCoachBot;
+import introsde.telegramservice.bot.model.MeasureModel;
+import introsde.telegramservice.client.BotClient;
 
 public class Measure {
 
@@ -104,9 +109,14 @@ public class Measure {
 		try { // check if the value inserted is a number
 			Double num = Double.parseDouble(text);
 
-			// TODO save new value num for measure
+			MeasureModel measureModel = new MeasureModel(text, measure, "double");
+			Response res = BotClient.getService().path("measure/" + chatId).request().post(Entity.xml(measureModel));
 
-			firstPart = "Ok, your new value for " + measure + " is " + text + "\n\n<b>Well done!</b>";
+			if (res.getStatus() == 200) {
+				firstPart = "Ok, your new value for " + measure + " is " + text + "\n\n<b>Well done!</b>";
+			} else {
+				firstPart = "Sorry, there was an error\n";
+			}
 		} catch (NumberFormatException e) {
 			firstPart = "Sorry, not a valid number<b>\n\nTry again!</b>";
 		}

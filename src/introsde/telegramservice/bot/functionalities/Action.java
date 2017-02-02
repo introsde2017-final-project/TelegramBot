@@ -14,7 +14,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import introsde.telegramservice.bot.LifeCoachBot;
-import introsde.telegramservice.bot.model.Person;
+import introsde.telegramservice.bot.model.PersonModel;
 import introsde.telegramservice.client.BotClient;
 
 public class Action {
@@ -38,7 +38,7 @@ public class Action {
 		
 		Action.printHelp(bot, update);
 
-		Person person = new Person(firstname, lastname, chatId);
+		PersonModel person = new PersonModel(firstname, lastname, chatId);
 		//POST request to Process Centric Service
 		BotClient.getService().path("person").request().post(Entity.xml(person));
 		if (lastname == null) {
