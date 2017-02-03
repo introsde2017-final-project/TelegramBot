@@ -6,6 +6,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import introsde.telegramservice.bot.functionalities.Action;
 import introsde.telegramservice.bot.functionalities.Exercise;
 import introsde.telegramservice.bot.functionalities.Measure;
+import introsde.telegramservice.bot.functionalities.Profile;
 
 
 
@@ -58,9 +59,9 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 				Exercise.getExercise(this, chatId);
 				break;
 
-			// keyboard selection: get a recipe
-			case Action.GET_RECIPE:
-				// TODO
+			// keyboard selection: see profile
+			case Profile.SEE_PROFILE:
+				Profile.getProfile(this, chatId);
 				break;
 
 			// no keyboard selection

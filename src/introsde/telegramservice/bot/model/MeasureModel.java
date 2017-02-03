@@ -2,7 +2,7 @@ package introsde.telegramservice.bot.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+@XmlRootElement(name="measure")
 public class MeasureModel {
 	private String measureValue;
 	private String measureType;

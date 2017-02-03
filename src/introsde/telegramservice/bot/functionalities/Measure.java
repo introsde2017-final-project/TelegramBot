@@ -115,7 +115,7 @@ public class Measure {
 			if (res.getStatus() == 200) {
 				firstPart = "Ok, your new value for " + measure + " is " + text + "\n\n<b>Well done!</b>";
 			} else {
-				firstPart = "Sorry, there was an error\n";
+				firstPart = Action.ERROR;
 			}
 		} catch (NumberFormatException e) {
 			firstPart = "Sorry, not a valid number<b>\n\nTry again!</b>";

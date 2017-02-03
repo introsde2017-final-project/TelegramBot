@@ -22,9 +22,8 @@ public class Action {
 	public static final String START = "/start";
 	public static final String HELP = "/help";
 
-
+	public static final String ERROR = "Sorry, there was an error\n";
 	public static final String UPDATE_FOOD = "Update food";
-	public static final String GET_RECIPE = "Get recipe";
 		
 	/**
 	 * Save the person into the db if not exists yet
@@ -41,6 +40,7 @@ public class Action {
 		PersonModel person = new PersonModel(firstname, lastname, chatId);
 		//POST request to Process Centric Service
 		BotClient.getService().path("person").request().post(Entity.xml(person));
+		System.out.println("Person stored: " + person.getFirstname());
 		if (lastname == null) {
 			Profile.askName(bot, chatId, Profile.LASTNAME);
 		}
@@ -60,7 +60,7 @@ public class Action {
 				 "You can control me by using the keyboard.\n" + 
 				 "\nYou can also use these commands:\n/help - Discover how to use me\n" + 
 				 "/firstname - set your firstname\n" + 
-				 "/lastname - set your lastname";
+				 "/lastname - set your lastname\n";
 		 sendKeyboard(bot, chatId, text);
 	 }
 	
@@ -81,13 +81,13 @@ public class Action {
 		List<KeyboardRow> keyboard = new ArrayList<>(); 
 		// Create a keyboard row and add it
 		KeyboardRow row = new KeyboardRow();
+		row.add(Profile.SEE_PROFILE);
 		row.add(Measure.UPDATE_MEASURE);
-		row.add(UPDATE_FOOD);
 		keyboard.add(row);
 
 		row = new KeyboardRow();
 		row.add(Exercise.GET_EXERCISE);
-		row.add(GET_RECIPE);
+		row.add(UPDATE_FOOD);
 		keyboard.add(row);
 
 		// Set the keyboard to the markup
@@ -128,6 +128,14 @@ public class Action {
 				
 			case Profile.LASTNAME:
 				Profile.setLastname(bot, chatId, argument);
+				break;
+				
+			case Profile.BIRTHDAY:
+				Profile.setBirthDate(bot, chatId, argument);
+				break;
+			
+			case Profile.EMAIL:
+				Profile.setEmail(bot, chatId, argument);
 				break;
 				
 			default:
