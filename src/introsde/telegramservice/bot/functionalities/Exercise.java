@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -23,6 +24,7 @@ public class Exercise {
 	protected static final String EXERCISE = "exercise";
 	public static final String GET_EXERCISE = "Get " + EXERCISE;
 	protected static final String CHOOSE_EXERCISE = "Ok, which exercise do you prefer?\n\n<b>Choose an option only if you do it!</b>\n";
+	protected static final String CHOOSE_MINUTES_EXERCISE = "Ok, how many minutes did you performed ";
 
 	
 	/**
@@ -71,8 +73,8 @@ public class Exercise {
 		int i = 0;
 		for (String exercise : exercises) {
 			InlineKeyboardButton button = new InlineKeyboardButton();
-			button.setText(exercise + "\n" + minutes + " min");
-			button.setCallbackData(EXERCISE + "-" + exercise + "-" + minutes);
+			button.setText(exercise);
+			button.setCallbackData(EXERCISE + "-" + exercise);
 			
 			if((i % 2) == 0) {
 				row = new ArrayList<>(); //create new row every 2 elements
@@ -98,13 +100,51 @@ public class Exercise {
 	
 	}
 	
-	protected static void  performedExercise (LifeCoachBot bot, Long chatId, String data) {
-		String[] tokens = data.split("-"); //format -> exercise-activity-minutes
+	/**
+	 * Ask how many minutes the exercise was performed
+	 * @param bot the bot itself
+	 * @param chatId the chat id of the user
+	 * @param data the callback data of the user choice
+	 */
+	protected static void  askMinutesExercise (LifeCoachBot bot, Long chatId, String data) {
+		ForceReplyKeyboard reply = new ForceReplyKeyboard();
 		
-		//TODO get calories based on activity and minutes
-		int calories = 100;
+		SendMessage message = new SendMessage();
+		message.setChatId(chatId);
+		message.setText(Exercise.CHOOSE_MINUTES_EXERCISE + data.substring(data.indexOf("-") + 1) + "?");
+		message.setReplyMarkup(reply);
 		
-		String firstPart = "Congratulations, you lost " + calories + " calories\n\n<b>Well done!</b>";
+		try {
+			bot.sendMessage(message);
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Retrieve burned calories
+	 * @param bot the bot itself
+	 * @param chatId the chat id of the user
+	 * @param text the minutes taken to perform the exercise
+	 * @param reply the reply attached to the message to understand which exercise
+	 */
+	protected static void setPerformedExercise (LifeCoachBot bot, Long chatId, String text, String reply) {
+		String exerciseName = reply.substring(reply.indexOf(CHOOSE_MINUTES_EXERCISE) + CHOOSE_MINUTES_EXERCISE.length(), reply.indexOf("?"));
+		String firstPart = null;
+		try { // check if the value inserted is a number
+			Integer minutes = Integer.parseInt(text);
+			
+			ExerciseModel exercise = new ExerciseModel(exerciseName, minutes);
+			Response res = BotClient.getService().path("exercise/" + chatId + "/calories").request().accept(MediaType.APPLICATION_XML).post(Entity.xml(exercise));
+			
+			if (res.getStatus() == 200) {
+				firstPart = "Congratulations, you lost " + (res.readEntity(ExerciseModel.class)).getCalories() + " calories\n\n<b>Well done!</b>";
+			} else {
+				firstPart = Action.ERROR;
+			}			
+		} catch (NumberFormatException e) {
+			firstPart = "Sorry, not a valid number\n\n<b>Try again!</b>";
+		}
 		Action.sendKeyboard(bot, chatId, firstPart);
 	}
 

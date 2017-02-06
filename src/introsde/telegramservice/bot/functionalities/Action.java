@@ -59,8 +59,10 @@ public class Action {
 		 String text = "<b>Hi " + firstname+ "! I am your Life Style Coach!</b>\n" + 
 				 "You can control me by using the keyboard.\n" + 
 				 "\nYou can also use these commands:\n/help - Discover how to use me\n" + 
-				 "/firstname - set your firstname\n" + 
-				 "/lastname - set your lastname\n";
+				 "/firstname - Set your firstname\n" +
+				 "/lastname - Set your lastname\n" +
+				 "/birthday - Set your birthday\n" +
+				 "/firstname - Set your e-mail\n";
 		 sendKeyboard(bot, chatId, text);
 	 }
 	
@@ -147,6 +149,8 @@ public class Action {
 			 //if it is reply to update measure
 			 if (reply.startsWith(Measure.CHOOSE_VALUE_MEASURE)) {
 				 Measure.setUpdatedMeasure(bot, chatId, text, reply);
+			 } else if (reply.startsWith(Exercise.CHOOSE_MINUTES_EXERCISE)) {
+				 Exercise.setPerformedExercise(bot, chatId, text, reply);
 			 } else { //unrecognized reply
 				 firstPart = "<b>Select action first!</b>";
 				 sendKeyboard(bot, chatId, firstPart);
@@ -182,7 +186,7 @@ public class Action {
 			if(data.startsWith(Measure.MEASURE)) {
 				Measure.askUpdatedMeasure(bot, chatId, data);
 			} else if (data.startsWith(Exercise.EXERCISE)) {
-				Exercise.performedExercise(bot, chatId, data);
+				Exercise.askMinutesExercise(bot, chatId, data);
 			}
 			
 		}

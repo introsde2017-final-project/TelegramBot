@@ -99,7 +99,7 @@ public class Measure {
 	/**
 	 * Save the new value for the measure
 	 * @param bot the bot itself
-	 * @param chatId chatId the chat id of the user
+	 * @param chatId the chat id of the user
 	 * @param text the new value
 	 * @param reply the reply attached to the message to understand which measure
 	 */

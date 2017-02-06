@@ -7,9 +7,15 @@ public class ExerciseModel {
 	
 	private String name;
 	private Integer id;
+	private Integer minutes;
+	private Double calories;
 	
-	public ExerciseModel() {
+	public ExerciseModel() {	
+	}
 	
+	public ExerciseModel(String name, Integer minutes) {
+		this.name = name;
+		this.minutes = minutes;
 	}
 
 	public String getName() {
@@ -26,6 +32,22 @@ public class ExerciseModel {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public Integer getMinutes() {
+		return minutes;
+	}
+
+	public void setMinutes(Integer minutes) {
+		this.minutes = minutes;
+	}
+
+	public Double getCalories() {
+		return calories;
+	}
+
+	public void setCalories(Double calories) {
+		this.calories = calories;
 	}
 
 
