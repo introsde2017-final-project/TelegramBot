@@ -76,7 +76,7 @@ public class Action {
 
 		SendMessage message = new SendMessage();
 		message.setChatId(chatId);
-		message.setText(text + "\nI am ready to perform another action");
+		message.setText(text);
 
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 		// Create the keyboard (list of keyboard rows)
@@ -89,7 +89,7 @@ public class Action {
 
 		row = new KeyboardRow();
 		row.add(Exercise.GET_EXERCISE);
-		row.add(UPDATE_FOOD);
+		row.add(Recipe.SEARCH_RECIPE);
 		keyboard.add(row);
 
 		// Set the keyboard to the markup
@@ -149,8 +149,10 @@ public class Action {
 			 //if it is reply to update measure
 			 if (reply.startsWith(Measure.CHOOSE_VALUE_MEASURE)) {
 				 Measure.setUpdatedMeasure(bot, chatId, text, reply);
-			 } else if (reply.startsWith(Exercise.CHOOSE_MINUTES_EXERCISE)) {
+			 } else if (reply.startsWith(Exercise.CHOOSE_MINUTES_EXERCISE)) { //if it is reply to set minutes
 				 Exercise.setPerformedExercise(bot, chatId, text, reply);
+			 } else if (reply.endsWith(Recipe.TYPE_INGREDIENT)) { //if it is reply to search recipes
+				 Recipe.printRecipeNames(bot, chatId, text);
 			 } else { //unrecognized reply
 				 firstPart = "<b>Select action first!</b>";
 				 sendKeyboard(bot, chatId, firstPart);
@@ -187,6 +189,14 @@ public class Action {
 				Measure.askUpdatedMeasure(bot, chatId, data);
 			} else if (data.startsWith(Exercise.EXERCISE)) {
 				Exercise.askMinutesExercise(bot, chatId, data);
+			} else if (data.startsWith(Recipe.RECIPE)) {
+				if (data.contains("yes")) {
+					Recipe.printURLRecipe(bot, chatId, data);
+				} else if (data.contains("no")){
+					Action.sendKeyboard(bot, chatId, "Ok, choose another recipe.");
+				} else {
+					Recipe.sureAboutCalories(bot, chatId, data);
+				}
 			}
 			
 		}

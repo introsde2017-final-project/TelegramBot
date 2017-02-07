@@ -22,7 +22,7 @@ import introsde.telegramservice.client.BotClient;
 public class Exercise {
 	
 	protected static final String EXERCISE = "exercise";
-	public static final String GET_EXERCISE = "Get " + EXERCISE;
+	public static final String GET_EXERCISE = "Get " + EXERCISE + "s";
 	protected static final String CHOOSE_EXERCISE = "Ok, which exercise do you prefer?\n\n<b>Choose an option only if you do it!</b>\n";
 	protected static final String CHOOSE_MINUTES_EXERCISE = "Ok, how many minutes did you performed ";
 
@@ -37,9 +37,7 @@ public class Exercise {
 		SendMessage message = new SendMessage();
 		message.setChatId(chatId);
 		message.setText(CHOOSE_EXERCISE);
-		
-		InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-		
+				
 		//Get 4 exercises from API
 		List<String> exercises = new ArrayList<>();
 		
@@ -66,7 +64,7 @@ public class Exercise {
 		}
 		System.out.println("=============");
 
-		String minutes = "5";
+		InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 		
 		List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 		List<InlineKeyboardButton> row = null;
