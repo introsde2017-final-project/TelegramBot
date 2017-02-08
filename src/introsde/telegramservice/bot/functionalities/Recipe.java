@@ -14,6 +14,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import introsde.telegramservice.bot.LifeCoachBot;
+import introsde.telegramservice.bot.model.PersonModel;
 import introsde.telegramservice.bot.model.RecipeModel;
 import introsde.telegramservice.client.BotClient;
 
@@ -95,64 +96,76 @@ public class Recipe {
 	public static void sureAboutCalories(LifeCoachBot bot, Long chatId, String data) {
 		System.out.println(data);
 		
-		Integer recipeId = Integer.parseInt(data.substring(data.indexOf("-") + 1));
-		Response res = BotClient.getService().path("recipe/" + recipeId).request().accept(MediaType.APPLICATION_XML).get();
+		//Get goal calories per meal
+		Response res1 = BotClient.getService().path("person/" + chatId).request().accept(MediaType.APPLICATION_XML).get();
 
-		if (res.getStatus() == 200) {
-			RecipeModel recipe = new RecipeModel();
-			recipe = res.readEntity(RecipeModel.class);
+		if(res1.getStatus() == 200) {
+			PersonModel person = res1.readEntity(PersonModel.class);
+			Long goalCalories = person.getCaloriesMeal();
 			
-			Double goalCalories = 200.0;
-			SendMessage message = new SendMessage();
-			message.setChatId(chatId);
-			
-			Integer percentage = (int)((recipe.getCalories()/goalCalories)*100);
-			String messageText = "<b>" + recipe.getName() + "</b> is equal to the " + percentage + "% of your meal calories goal.\n" + 
-					"It also contains:\n   * carbohydrate: " + recipe.getCarbohydrate() + "\n" + 
-					"   * fat: " + recipe.getFat() + "\n   * protein: " + recipe.getProtein() + "\n\n";
-			
-			if(percentage > 100) {
-				messageText += "Are you <b>really</b> sure to cook it?";
-			} else {
-				messageText += "<b>Perfect!</b>\nReady to cook it?";
-			}
-			message.setText(messageText);
-			message.setParseMode("html");
+			if (goalCalories == null) { //if calories not set, not possible
+				String firstPart = "<b>Operation not available now</b>\nInsert the maximum amount of calories per meal " + 
+						"with the command /caloriesMeal!\n";
+				Action.sendKeyboard(bot, chatId, firstPart);
+			} else {//search recipe
+				Integer recipeId = Integer.parseInt(data.substring(data.indexOf("-") + 1));
+				Response res2 = BotClient.getService().path("recipe/" + recipeId).request().accept(MediaType.APPLICATION_XML).get();
+				
+				if (res2.getStatus() == 200) {
+					RecipeModel recipe = new RecipeModel();
+					recipe = res2.readEntity(RecipeModel.class);
+					Integer percentage = (int)((recipe.getCalories()/(double)goalCalories)*100); //percentage of cal per meal over recipe cal
+					
+					SendMessage message = new SendMessage();
+					message.setChatId(chatId);
+					String messageText = "<b>" + recipe.getName() + "</b> is equal to the " + percentage + "% of your meal calories goal.\n" + 
+							"It also contains:\n   * carbohydrate: " + recipe.getCarbohydrate() + "\n" + 
+							"   * fat: " + recipe.getFat() + "\n   * protein: " + recipe.getProtein() + "\n\n";
+					
+					if(percentage > 100) {
+						messageText += "Are you <b>really</b> sure to cook it?";
+					} else {
+						messageText += "<b>Perfect!</b>\nReady to cook it?";
+					}
+					message.setText(messageText);
+					message.setParseMode("html");
 
-			//send keyboard to choose whether to cook it or not
-			InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-			List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-			List<InlineKeyboardButton> row = new ArrayList<>();;
-			
-			InlineKeyboardButton yesButton = new InlineKeyboardButton();
-			yesButton.setText("Yes");
-			yesButton.setCallbackData(RECIPE + "-yes-" + recipeId);
-			row.add(yesButton);
-			
-			InlineKeyboardButton noButton = new InlineKeyboardButton();
-			noButton.setText("No");
-			noButton.setCallbackData(RECIPE + "-no-" + recipeId);
-			row.add(noButton);
-			
-			keyboard.add(row);
-			
-			// Set the keyboard to the markup
-			keyboardMarkup.setKeyboard(keyboard);
-			// Add it to the message
-			message.setReplyMarkup(keyboardMarkup);
-			
-			try {
-				bot.sendMessage(message);
-			} catch (TelegramApiException e) {
-				e.printStackTrace();
+					//send keyboard to choose whether to cook it or not
+					InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+					List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+					List<InlineKeyboardButton> row = new ArrayList<>();;
+					
+					InlineKeyboardButton yesButton = new InlineKeyboardButton();
+					yesButton.setText("Yes");
+					yesButton.setCallbackData(RECIPE + "-yes-" + recipeId);
+					row.add(yesButton);
+					
+					InlineKeyboardButton noButton = new InlineKeyboardButton();
+					noButton.setText("No");
+					noButton.setCallbackData(RECIPE + "-no-" + recipeId);
+					row.add(noButton);
+					
+					keyboard.add(row);
+					
+					// Set the keyboard to the markup
+					keyboardMarkup.setKeyboard(keyboard);
+					// Add it to the message
+					message.setReplyMarkup(keyboardMarkup);
+					
+					try {
+						bot.sendMessage(message);
+					} catch (TelegramApiException e) {
+						e.printStackTrace();
+					}
+				} else {
+					String firstPart = Action.ERROR;
+					Action.sendKeyboard(bot, chatId, firstPart);	
+				}
 			}
-			
-			
 		} else {
 			String firstPart = Action.ERROR;
 			Action.sendKeyboard(bot, chatId, firstPart);	
-		}
-		
+		}		
 	}
 
 	public static void printURLRecipe(LifeCoachBot bot, Long chatId, String data) {

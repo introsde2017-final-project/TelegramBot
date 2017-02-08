@@ -15,6 +15,7 @@ public class PersonModel {
     protected Long chatId;
     protected String birthdate;
     protected String email;
+    private Long caloriesMeal;
 	private List<MeasureModel> currentProfile;
 	
 	public PersonModel() {
@@ -64,6 +65,14 @@ public class PersonModel {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Long getCaloriesMeal() {
+		return caloriesMeal;
+	}
+
+	public void setCaloriesMeal(Long caloriesMeal) {
+		this.caloriesMeal = caloriesMeal;
 	}
 
 	@XmlElementWrapper(name = "currentHealth")

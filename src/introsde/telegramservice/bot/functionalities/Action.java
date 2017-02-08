@@ -61,8 +61,9 @@ public class Action {
 				 "\nYou can also use these commands:\n/help - Discover how to use me\n" + 
 				 "/firstname - Set your firstname\n" +
 				 "/lastname - Set your lastname\n" +
-				 "/birthday - Set your birthday\n" +
-				 "/firstname - Set your e-mail\n";
+				 "/birthday - Set your birthday\n                   dd/MM/yyyy\n" +
+				 "/email - Set your e-mail\n" +
+				 "/caloriesMeal - Set the calories for your meal\n";
 		 sendKeyboard(bot, chatId, text);
 	 }
 	
@@ -138,6 +139,10 @@ public class Action {
 			
 			case Profile.EMAIL:
 				Profile.setEmail(bot, chatId, argument);
+				break;
+				
+			case Profile.CALORIES_MEAL:
+				Profile.setCaloriesMeal(bot, chatId, argument);
 				break;
 				
 			default:
