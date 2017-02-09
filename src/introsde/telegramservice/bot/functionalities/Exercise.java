@@ -23,9 +23,10 @@ public class Exercise {
 	
 	protected static final String EXERCISE = "exercise";
 	public static final String GET_EXERCISE = "Get " + EXERCISE + "s";
+	public static final String SEE_TODAY_EXERCISE = "See today's " + EXERCISE + "s";
 	protected static final String CHOOSE_EXERCISE = "Ok, which exercise do you prefer?\n\n<b>Choose an option only if you do it!</b>\n";
 	protected static final String CHOOSE_MINUTES_EXERCISE = "Ok, how many minutes did you performed ";
-
+	protected static final String NOT_AVAILABLE_OPERATION = "<b>Operation not available now</b>\nInsert your weight and height first!\n";
 	
 	/**
 	 * Get exercises to perform after choosing the option from the keyboard
@@ -56,10 +57,14 @@ public class Exercise {
 					System.out.println("Already chosen: " + ex.getName());
 					i--;
 				}
-			} else {
-				String firstPart = "<b>Operation not available now</b>\nInsert your weight and height first!\n";
+			} else if (res.getStatus() == 204) {
+				String firstPart = NOT_AVAILABLE_OPERATION;
 				Action.sendKeyboard(bot, chatId, firstPart);
 				return;
+			} else {
+				String firstPart = Action.ERROR;
+				Action.sendKeyboard(bot, chatId, firstPart);
+				return;				
 			}
 		}
 		System.out.println("=============");
@@ -136,12 +141,40 @@ public class Exercise {
 			Response res = BotClient.getService().path("exercise/" + chatId + "/calories").request().accept(MediaType.APPLICATION_XML).post(Entity.xml(exercise));
 			
 			if (res.getStatus() == 200) {
-				firstPart = "Congratulations, you lost " + (res.readEntity(ExerciseModel.class)).getCalories() + " calories\n\n<b>Well done!</b>";
+				firstPart = "Congratulations, you lost " + (res.readEntity(ExerciseModel.class)).getCalories() + " kcal\n\n<b>Well done!</b>";
 			} else {
 				firstPart = Action.ERROR;
 			}			
 		} catch (NumberFormatException e) {
 			firstPart = "Sorry, not a valid number\n\n<b>Try again!</b>";
+		}
+		Action.sendKeyboard(bot, chatId, firstPart);
+	}
+
+	public static void getTodayExercises(LifeCoachBot bot, Long chatId) {
+		
+		Response res = BotClient.getService().path("exercise/" + chatId + "/today").request().accept(MediaType.APPLICATION_XML).get();
+		
+		String firstPart = null;
+		if (res.getStatus() == 200) {
+			ExerciseModel[] exercises = res.readEntity(ExerciseModel[].class);
+			
+			if (exercises != null) {
+				Double totalCal = 0.0;
+				firstPart = "<b>Today's activities:</b>\n\n";
+				for (ExerciseModel e : exercises) {
+					String name = e.getName();
+					name = name.replace("<", "&lt;");
+					name.replace(">", "&gt;");
+					firstPart += "<i>" + name + "</i>\n" + "(" + e.getMinutes() + " min - " + e.getCalories() + " kcal)\n\n";
+					totalCal += e.getCalories();
+				}
+				firstPart += "<b>Total burnt calories:</b> " + totalCal + " kcal";
+			}
+		} else if (res.getStatus() == 204) {
+			firstPart = NOT_AVAILABLE_OPERATION;
+		} else {
+			firstPart = Action.ERROR;
 		}
 		Action.sendKeyboard(bot, chatId, firstPart);
 	}

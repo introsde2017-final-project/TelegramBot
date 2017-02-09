@@ -51,11 +51,11 @@ public class Recipe {
 		if (res.getStatus() == 200) {
 			RecipeModel[] recipes = res.readEntity(RecipeModel[].class);
 			
-			SendMessage message = new SendMessage();
-			message.setChatId(chatId);
-			message.setParseMode("html");
-			
 			if (recipes.length != 0) {
+				SendMessage message = new SendMessage();
+				message.setChatId(chatId);
+				message.setParseMode("html");
+				
 				message.setText(CHOOSE_RECIPE);
 				
 				List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -77,14 +77,15 @@ public class Recipe {
 				keyboardMarkup.setKeyboard(keyboard);
 				// Add it to the message
 				message.setReplyMarkup(keyboardMarkup);
+				
+				try {
+					bot.sendMessage(message);
+				} catch (TelegramApiException e) {
+					e.printStackTrace();
+				}
 			} else {
-				message.setText("Sorry, no result found.\n<b>Try with a different one!</b>");
-			}
-			
-			try {
-				bot.sendMessage(message);
-			} catch (TelegramApiException e) {
-				e.printStackTrace();
+				String firstPart = "Sorry, no result found.\n<b>Try with a different one!</b>";
+				Action.sendKeyboard(bot, chatId, firstPart);
 			}
 		} else {
 			String firstPart = Action.ERROR;
@@ -105,7 +106,7 @@ public class Recipe {
 			
 			if (goalCalories == null) { //if calories not set, not possible
 				String firstPart = "<b>Operation not available now</b>\nInsert the maximum amount of calories per meal " + 
-						"with the command /caloriesMeal!\n";
+						"with the command /meal_kcal!\n";
 				Action.sendKeyboard(bot, chatId, firstPart);
 			} else {//search recipe
 				Integer recipeId = Integer.parseInt(data.substring(data.indexOf("-") + 1));

@@ -18,7 +18,7 @@ public class Profile {
 	protected static final String LASTNAME = "/lastname";
 	protected static final String BIRTHDAY = "/birthday";
 	protected static final String EMAIL = "/email";
-	protected static final String CALORIES_MEAL = "/caloriesMeal";
+	protected static final String CALORIES_MEAL = "/meal_kcal";
 	public static final String SEE_PROFILE = "See profile";
 
 	/**
@@ -53,7 +53,6 @@ public class Profile {
 		} else if (command.equals(Profile.CALORIES_MEAL)) {
 			try {
 				Long cal = Long.parseLong(argument);
-				System.out.println("cal to set " + cal);
 				person.setCaloriesMeal(cal);
 			} catch (NumberFormatException e) {
 				Action.sendKeyboard(bot, chatId, "Sorry, not a valid number<b>\n\nTry again!</b>");
@@ -98,15 +97,20 @@ public class Profile {
 		String firstPart = null;
 		if (res.getStatus() == 200) {
 			PersonModel person = res.readEntity(PersonModel.class);
-			firstPart = "<b>Your profile</b>\n" +
-					"Firstname: " + person.getFirstname() + "\n" +
-					"Lastname: " + person.getLastname() + "\n" +
-					"Birthday: " + person.getBirthdate() + "\n" +
-					"E-mail: " + person.getEmail() + "\n" +
-					"Calories per meal: " + person.getCaloriesMeal() + "\n" +
-					"Current measures:\n";
+			
+			firstPart = "<b>Your profile</b>\nFirstname: <i>" + person.getFirstname() + "</i>\n";
+			if (person.getLastname() != null) { firstPart += "Lastname: <i>" + person.getLastname() + "</i>\n"; }
+			if (person.getBirthdate() != null) { firstPart += "Birthday: <i>" + person.getBirthdate() + "</i>\n"; }
+			if (person.getEmail() != null) { firstPart += "E-mail: <i>" + person.getEmail() + "</i>\n"; }
+			if (person.getCaloriesMeal() != null) { firstPart += "Kcal per meal: <i>" + person.getCaloriesMeal() + " kcal</i>\n"; }
+			if (person.getCurrentProfile() != null && person.getCurrentProfile().size() > 0) { firstPart += "Current measures:\n"; }
 			for (MeasureModel m : person.getCurrentProfile()) {
-				firstPart += "     " + m.getMeasureType() + ": " + m.getMeasureValue() + "\n";
+				firstPart += "     * " + m.getMeasureType() + ": <i>" + m.getMeasureValue() + "</i>";
+				if (m.getMeasureType().equals("weight")) {
+					firstPart += "<i> kg</i>\n";
+				} else if (m.getMeasureType().equals("height")) {
+					firstPart += "<i> cm</i>\n";
+				}
 			}
 		} else {
 			firstPart = Action.ERROR;

@@ -59,6 +59,11 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 			case Exercise.GET_EXERCISE:
 				Exercise.getExercise(this, chatId);
 				break;
+				
+			// keyboard selection: get today exercise
+			case Exercise.SEE_TODAY_EXERCISE:
+				Exercise.getTodayExercises(this, chatId);
+				break;
 
 			// keyboard selection: see profile
 			case Profile.SEE_PROFILE:

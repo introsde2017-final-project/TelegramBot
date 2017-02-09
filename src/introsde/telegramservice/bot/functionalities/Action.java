@@ -63,7 +63,7 @@ public class Action {
 				 "/lastname - Set your lastname\n" +
 				 "/birthday - Set your birthday\n                   dd/MM/yyyy\n" +
 				 "/email - Set your e-mail\n" +
-				 "/caloriesMeal - Set the calories for your meal\n";
+				 "/meal_kcal - Set the maximum kcal for your meal\n";
 		 sendKeyboard(bot, chatId, text);
 	 }
 	
@@ -89,7 +89,11 @@ public class Action {
 		keyboard.add(row);
 
 		row = new KeyboardRow();
+		row.add(Exercise.SEE_TODAY_EXERCISE);
 		row.add(Exercise.GET_EXERCISE);
+		keyboard.add(row);
+		
+		row = new KeyboardRow();
 		row.add(Recipe.SEARCH_RECIPE);
 		keyboard.add(row);
 

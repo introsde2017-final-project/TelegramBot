@@ -38,7 +38,6 @@ public class Measure {
 		
 		InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 		
-		//TODO Get list of measure from db
 		List<String> measures = new ArrayList<>();
 		measures.add("height");
 		measures.add("weight");
@@ -113,7 +112,13 @@ public class Measure {
 			Response res = BotClient.getService().path("measure/" + chatId).request().post(Entity.xml(measureModel));
 
 			if (res.getStatus() == 200) {
-				firstPart = "Ok, your new value for " + measure + " is " + text + "\n\n<b>Well done!</b>";
+				firstPart = "Ok, your new value for " + measure + " is " + text + ".\n\n";
+				String result = res.readEntity(String.class); 
+				if (result.equals("")) {
+					firstPart += "<b>Well done!</b>";
+				} else {
+					firstPart += "<b>" + result + "</b>";
+				}	
 			} else {
 				firstPart = Action.ERROR;
 			}
