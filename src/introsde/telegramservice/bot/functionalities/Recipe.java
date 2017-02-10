@@ -97,70 +97,48 @@ public class Recipe {
 	public static void sureAboutCalories(LifeCoachBot bot, Long chatId, String data) {
 		System.out.println(data);
 		
-		//Get goal calories per meal
-		Response res1 = BotClient.getService().path("person/" + chatId).request().accept(MediaType.APPLICATION_XML).get();
+		Integer recipeId = Integer.parseInt(data.substring(data.indexOf("-") + 1));
+		//Get sentence according to recipe calories
+		Response res = BotClient.getService().path("recipe/" + recipeId + "/" + chatId).request().accept(MediaType.APPLICATION_XML).get();
 
-		if(res1.getStatus() == 200) {
-			PersonModel person = res1.readEntity(PersonModel.class);
-			Long goalCalories = person.getCaloriesMeal();
+		if(res.getStatus() == 200) {
+			String sentence = res.readEntity(String.class);
 			
-			if (goalCalories == null) { //if calories not set, not possible
-				String firstPart = "<b>Operation not available now</b>\nInsert the maximum amount of calories per meal " + 
-						"with the command /meal_kcal!\n";
-				Action.sendKeyboard(bot, chatId, firstPart);
-			} else {//search recipe
-				Integer recipeId = Integer.parseInt(data.substring(data.indexOf("-") + 1));
-				Response res2 = BotClient.getService().path("recipe/" + recipeId).request().accept(MediaType.APPLICATION_XML).get();
+			if (sentence.contains("Operation not available")) { //if calories not set, not possible
+				Action.sendKeyboard(bot, chatId, sentence + " Use the command " + Profile.CALORIES_MEAL);
+			} else {
 				
-				if (res2.getStatus() == 200) {
-					RecipeModel recipe = new RecipeModel();
-					recipe = res2.readEntity(RecipeModel.class);
-					Integer percentage = (int)((recipe.getCalories()/(double)goalCalories)*100); //percentage of cal per meal over recipe cal
-					
-					SendMessage message = new SendMessage();
-					message.setChatId(chatId);
-					String messageText = "<b>" + recipe.getName() + "</b> is equal to the " + percentage + "% of your meal calories goal.\n" + 
-							"It also contains:\n   * carbohydrate: " + recipe.getCarbohydrate() + "\n" + 
-							"   * fat: " + recipe.getFat() + "\n   * protein: " + recipe.getProtein() + "\n\n";
-					
-					if(percentage > 100) {
-						messageText += "Are you <b>really</b> sure to cook it?";
-					} else {
-						messageText += "<b>Perfect!</b>\nReady to cook it?";
-					}
-					message.setText(messageText);
-					message.setParseMode("html");
+				SendMessage message = new SendMessage();
+				message.setChatId(chatId);
+				message.setText(sentence);
+				message.setParseMode("html");
 
-					//send keyboard to choose whether to cook it or not
-					InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-					List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-					List<InlineKeyboardButton> row = new ArrayList<>();;
-					
-					InlineKeyboardButton yesButton = new InlineKeyboardButton();
-					yesButton.setText("Yes");
-					yesButton.setCallbackData(RECIPE + "-yes-" + recipeId);
-					row.add(yesButton);
-					
-					InlineKeyboardButton noButton = new InlineKeyboardButton();
-					noButton.setText("No");
-					noButton.setCallbackData(RECIPE + "-no-" + recipeId);
-					row.add(noButton);
-					
-					keyboard.add(row);
-					
-					// Set the keyboard to the markup
-					keyboardMarkup.setKeyboard(keyboard);
-					// Add it to the message
-					message.setReplyMarkup(keyboardMarkup);
-					
-					try {
-						bot.sendMessage(message);
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
-				} else {
-					String firstPart = Action.ERROR;
-					Action.sendKeyboard(bot, chatId, firstPart);	
+				//send keyboard to choose whether to cook it or not
+				InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+				List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+				List<InlineKeyboardButton> row = new ArrayList<>();;
+				
+				InlineKeyboardButton yesButton = new InlineKeyboardButton();
+				yesButton.setText("Yes");
+				yesButton.setCallbackData(RECIPE + "-yes-" + recipeId);
+				row.add(yesButton);
+				
+				InlineKeyboardButton noButton = new InlineKeyboardButton();
+				noButton.setText("No");
+				noButton.setCallbackData(RECIPE + "-no-" + recipeId);
+				row.add(noButton);
+				
+				keyboard.add(row);
+				
+				// Set the keyboard to the markup
+				keyboardMarkup.setKeyboard(keyboard);
+				// Add it to the message
+				message.setReplyMarkup(keyboardMarkup);
+				
+				try {
+					bot.sendMessage(message);
+				} catch (TelegramApiException e) {
+					e.printStackTrace();
 				}
 			}
 		} else {

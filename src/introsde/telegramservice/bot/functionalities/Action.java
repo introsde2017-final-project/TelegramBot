@@ -23,7 +23,6 @@ public class Action {
 	public static final String HELP = "/help";
 
 	public static final String ERROR = "Sorry, there was an error\n";
-	public static final String UPDATE_FOOD = "Update food";
 		
 	/**
 	 * Save the person into the db if not exists yet
