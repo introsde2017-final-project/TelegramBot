@@ -11,7 +11,7 @@ import org.glassfish.jersey.client.ClientConfig;
 
 
 public class BotClient {
-	
+
 	private WebTarget service;
     private static BotClient instance;
 
@@ -21,16 +21,16 @@ public class BotClient {
         Client client = ClientBuilder.newClient(clientConfig);
         service = client.target(getBaseURI());
     }
-    
+
     private static URI getBaseURI() {
-        return UriBuilder.fromUri("http://127.0.1.1:5700/fitApp/").build();
+        return UriBuilder.fromUri("https://process-centric--service.herokuapp.com/fitApp/").build();
     }
-    
+
     public static WebTarget getService() {
         if (instance == null) {
             instance = new BotClient();
         }
         return instance.service;
     }
-    
+
 }
