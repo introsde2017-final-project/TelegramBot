@@ -19,6 +19,7 @@ public class Profile {
 	protected static final String BIRTHDAY = "/birthday";
 	protected static final String EMAIL = "/email";
 	protected static final String CALORIES_MEAL = "/meal_kcal";
+	protected static final String SLEEPING_TIME = "/sleep_hours";
 	public static final String SEE_PROFILE = "See profile";
 
 	/**
@@ -114,6 +115,20 @@ public class Profile {
 			}
 		} else {
 			firstPart = Action.ERROR;
+		}
+		Action.sendKeyboard(bot, chatId, firstPart);
+	}
+	
+	public static void setSleepTime (LifeCoachBot bot, Long chatId, String argument) {
+		
+		Response res = BotClient.getService().path("exercise/" + chatId + "/timesleep").request().put(Entity.entity(argument, MediaType.TEXT_PLAIN));
+
+		String firstPart = null;
+		if (res.getStatus() == 200) {
+			firstPart = "Ok, your " + SLEEPING_TIME.substring(1) + " is " + argument + "\n\n<b>Well done!</b>";
+		} else {
+			firstPart = Action.ERROR;
+			System.out.println(res.getStatus());
 		}
 		Action.sendKeyboard(bot, chatId, firstPart);
 	}
