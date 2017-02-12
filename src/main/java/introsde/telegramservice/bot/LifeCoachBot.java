@@ -13,7 +13,6 @@ import introsde.telegramservice.bot.functionalities.Recipe;
 
 public class LifeCoachBot extends TelegramLongPollingBot {
 
-	@Override
 	public String getBotUsername() {
 		return "@introsde_LifeStyle_Coach";
 	}
@@ -23,7 +22,6 @@ public class LifeCoachBot extends TelegramLongPollingBot {
 		return "297738915:AAHygVxWpXrpdhuMDPF8hsnVZb773wlhv-I";
 	}
 
-	@Override
 	public void onUpdateReceived(Update update) {
 		handleMessage(update);
 	}
